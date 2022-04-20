@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MQTT Atmosphere sensor</title>
+  </head>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io();
+    
+
+    const subscribe = (topic, { isSubscribed: subscribed }) => {
+      socket.emit(topic, { isSubscribed: subscribed });
+      socket.on(topic, (data) => {
+      var ul = document.getElementById("data");
+      var li = document.createElement("li");
+      li.appendChild(document.createTextNode(data));
+      ul.appendChild(li);
+    });
+    };
+
+    const clearNodes = (parent, topic, { isSubscribed: subscribed }, cb) => {
+      cb(topic, { isSubscribed: subscribed });
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    };
+  </script>
+  <body>
+    <h1>Temperature Sensor</h1>
+    <br />
+    <button onclick="subscribe('nfkt/weather', {isSubscribed:true})">
+      Subscribe
+    </button>
+    <button onclick="subscribe('nfkt/weather', {isSubscribed:false})">
+      Stop subscription
+    </button>
+    <button
+      onclick="clearNodes(document.querySelector('#data'), 'nfkt/weather', {isSubscribed:false}, subscribe)"
+    >
+      Clear
+    </button>
+    <ul id="data"></ul>
+  </body>
+</html>

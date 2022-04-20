@@ -1,7 +1,15 @@
+const mongoPersistence = require('aedes-persistence-mongodb');
 const aedes = require('aedes')();
+// ({persistence: mongoPersistence({
+//     url: 'mongodb://127.0.0.1/aedes-cluster',
+//     })});
 const server = require('net').createServer(aedes.handle);
+const httpServer = require('http').createServer();
+const ws = require('websocket-stream')
+ws.createServer({ server: httpServer }, aedes.handle);
 // const server = createServer(aedes);
 const port = 1883;
+const wsPort = 8083;
 
 aedes.on('client', function (client) {
     console.log(`[CLIENT_CONNECTED] Client ${(client ? client.id : client)} connected to broker ${aedes.id}`)
@@ -29,13 +37,19 @@ aedes.on('publish', async function (packet, client) {
     }
 })
 
-aedes.publish({topic: 'hello', payload:'broker'})
+
+// aedes.publish({ topic: '/nfkt', payload: "I'm broker " + aedes.id })
 
 server.listen(port, function () {
     console.log(`MQTT Broker running on port: ${port} and broker id is: ${aedes.id}`); 
+
 });
 
-aedes.client = (client)=> console.log(`[CLIENT_CONNECTED] Client ${(client ? client.id : client)} connected to broker ${aedes.id}`)
+httpServer.listen(wsPort, function () {
+    console.log('Aedes MQTT-WS listening on port: ' + wsPort)
+});
+
+// aedes.client = (client)=> console.log(`[CLIENT_CONNECTED] Client ${(client ? client.id : client)} connected to broker ${aedes.id}`)
 // var mosca = require('mosca');
 // var settings = {
 // 		port:1883
@@ -46,3 +60,12 @@ aedes.client = (client)=> console.log(`[CLIENT_CONNECTED] Client ${(client ? cli
 // server.on('ready', function(){
 // console.log("ready");
 // });
+
+
+/**
+ * var mongodb = require('mqemitter-mongodb')
+var mq = mongodb({
+  url: 'mongodb://127.0.0.1/mqemitter?auto_reconnect'
+})
+ * 
+ */
